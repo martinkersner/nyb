@@ -7,7 +7,7 @@
 from bs4 import BeautifulSoup
 import urllib.request as urlrequest
 import urllib.error as urlerror
-from utils import getRandomString
+# from utils import getRandomString
 
 # html_file = 'danawa.html'
 # with open(html_file, encoding="utf-8") as f:
@@ -40,4 +40,4 @@ ranking_wrap = soup.find_all("div", class_="ranking_wrap")[0]
 keyword_link = ranking_wrap.find_all("a")
 
 for idx, keyword in enumerate(keyword_link):
-    print(idx, keyword.contents[0])
+    print(idx+1, keyword.contents[0])
