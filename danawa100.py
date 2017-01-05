@@ -7,6 +7,7 @@
 from bs4 import BeautifulSoup
 import urllib.request as urlrequest
 import urllib.error as urlerror
+from db import *
 
 def requestPage(request_obj):
     try:
@@ -33,5 +34,10 @@ soup = BeautifulSoup(html, "html.parser")
 week_rank_wrap = soup.find_all("div", class_="week_rank_wrap")[0]
 keyword = week_rank_wrap.find_all("a")
 
+dict_danawa = {}
 for idx, keyword in enumerate(keyword):
+    dict_danawa[idx+1] = keyword.contents[1]
     print(idx+1, keyword.contents[1])
+
+db = sqliteDB()
+db.AddToDanawa100(dict_danawa)

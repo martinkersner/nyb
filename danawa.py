@@ -45,4 +45,5 @@ for idx, keyword in enumerate(keyword_link):
     dict_danawa[idx+1] = keyword.contents[0]
     print(idx+1, keyword.contents[0])
 
-db(dict_danawa)
+db = sqliteDB()
+db.AddToDanawa10(dict_danawa)
