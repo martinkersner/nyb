@@ -8,11 +8,13 @@ class sqliteDB:
   conn = None
   danawa10_tablename  = "DANAWA10"
   danawa100_tablename = "DANAWA100"
+  naver_tablename     = "NAVER"
 
   def __init__(self):
     self.conn = sqlite3.connect(self.db_name)
     self.CreateTable(self.danawa10_tablename)
     self.CreateTable(self.danawa100_tablename)
+    self.CreateNaverTable(self.naver_tablename)
 
   def ExistTable(self, tablename):
     c = self.conn.cursor()
@@ -24,6 +26,15 @@ class sqliteDB:
        return False
     else:
       return True
+
+  def CreateNaverTable(self, tablename):
+    if not self.ExistTable(tablename):
+      self.conn.execute('''CREATE TABLE {0}
+        (ID       INTEGER PRIMARY KEY  AUTOINCREMENT,
+         DATE     DATETIME         NOT NULL,
+         CATEGORY TEXT             NOT NULL,
+         RANK     TEXT             NOT NULL);'''.format(tablename))
+      self.conn.commit()
 
   def CreateTable(self, tablename):
     if not self.ExistTable(tablename):
@@ -44,8 +55,22 @@ class sqliteDB:
                  VALUES (DATETIME('now'), '{1}');'''.format(tablename, data_str))
     self.conn.commit()
 
+  def InsertNaver(self, tablename, category, data):
+    if data == None:
+      return
+
+    c = self.conn.cursor()
+    data_str = str(data).replace("'", "''")
+    print(data_str)
+    c.execute('''INSERT INTO {0} (DATE, CATEGORY, RANK)
+                 VALUES (DATETIME('now'), '{1}', '{2}');'''.format(tablename, category, data_str))
+    self.conn.commit()
+
   def AddToDanawa10(self, data):
     self.Insert(self.danawa10_tablename, data)
 
   def AddToDanawa100(self, data):
     self.Insert(self.danawa100_tablename, data)
+
+  def AddToNaver(self, category, data):
+    self.InsertNaver(self.naver_tablename, category, data)
