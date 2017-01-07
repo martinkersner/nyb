@@ -2,48 +2,46 @@
 #-*- encoding: utf-8 -*-
 
 # Martin Kersner, m.kersner@gmail.com
-# 2016/12/24
+# 2016/12/27
 
 from bs4 import BeautifulSoup
-import urllib.request as urlrequest
-import urllib.error as urlerror
+from utils import *
 from db import *
-# from utils import getRandomString
 
-# html_file = 'danawa.html'
-# with open(html_file, encoding="utf-8") as f:
+class Danawa:
+  search_url100 = "http://www.danawa.com/Keyword/keyword_ranking.html"
+  search_url10  = "http://search.danawa.com/dsearch.php?k1={0}"
+  db = sqliteDB()
 
-def requestPage(request_obj):
-    try:
-        response = urlrequest.urlopen(request_obj)
-    except urlerror.URLError as err:
-        print("Hit URLError", err.msg)
-        exit(-1)
-    except urlerror.HTTPError as err:
-        print("Hit HTTPError", err.code, "-", err.msg)
-        exit(-1)
+  def Get100(self):
+    html = requestPage(self.search_url100)
+    soup = BeautifulSoup(html, "html.parser")
     
-    return response.read()
+    week_rank_wrap = soup.find_all("div", class_="week_rank_wrap")[0]
+    keyword = week_rank_wrap.find_all("a")
+    
+    danawa_dict = {}
+    for idx, keyword in enumerate(keyword):
+        danawa_dict[idx+1] = keyword.contents[1]
+        print(idx+1, keyword.contents[1])
+    
+    self.db.AddToDanawa100(danawa_dict)
 
-# rand_str = getRandomString()
-rand_str = ""
-url = "http://search.danawa.com/dsearch.php?k1={0}".format(rand_str)
+  def Get10(self):
+    html = requestPage(self.search_url10.format(""))
+    soup = BeautifulSoup(html, "html.parser")
 
-request_obj = urlrequest.Request(
-        url=url,
-        method="GET",
-        headers={"User-agent": "hey"})
+    ranking_wrap = soup.find_all("div", class_="ranking_wrap")[0]
+    keyword_link = ranking_wrap.find_all("a")
+    
+    danawa_dict = {}
+    for idx, keyword in enumerate(keyword_link):
+        danawa_dict[idx+1] = keyword.contents[0]
+        print(idx+1, keyword.contents[0])
+    
+    self.db.AddToDanawa10(danawa_dict)
+    
 
-html = requestPage(request_obj)
-soup = BeautifulSoup(html, "html.parser")
-
-ranking_wrap = soup.find_all("div", class_="ranking_wrap")[0]
-keyword_link = ranking_wrap.find_all("a")
-
-dict_danawa = {}
-for idx, keyword in enumerate(keyword_link):
-    dict_danawa[idx+1] = keyword.contents[0]
-    print(idx+1, keyword.contents[0])
-
-db = sqliteDB()
-db.AddToDanawa10(dict_danawa)
+danawa = Danawa()
+danawa.Get100()
+danawa.Get10()
